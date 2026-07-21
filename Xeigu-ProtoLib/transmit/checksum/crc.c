@@ -11,12 +11,12 @@ static const uint32_t crc32_mpeg2_nibble_table[16] = {
 
 static uint32_t crc32_mpeg2(const uint8_t* data, size_t len) {
     
-    uint8_t crc = 0xFFFFFFFF;
+    uint32_t crc = 0xFFFFFFFF;
 
     for (size_t i = 0; i < len; i++)
     {
-        uint8_t b = data[i];
-
+        uint8_t b = data[i ^ 3];
+        
         crc = (crc << 4) ^
             crc32_mpeg2_nibble_table[((crc >> 28) ^ (b >> 4)) & 0xF];
 
