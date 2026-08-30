@@ -1,6 +1,6 @@
 # Xeigu-ProtoLib
 
-<big style="color:red"> Note: This project is WIP.... full decoding has not been decoded AND implemented yet. Do not currently implement!</big>
+<span style="font-size:32px; color:red"> Note: This project is WIP.... full decoding has not been decoded AND implemented yet. Do not currently implement!</span>
 
 The current implementation of me (@Novatillion) and @Zindswini's attempt to reverse engineer the Xeigu G90 head and base protocol.
 
