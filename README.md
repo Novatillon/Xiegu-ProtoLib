@@ -1,5 +1,7 @@
 # Xeigu-ProtoLib
 
+<big style="color:red"> Note: This project is WIP.... full decoding has not been decoded AND implemented yet. Do not currently implement!</big>
+
 The current implementation of me (@Novatillion) and @Zindswini's attempt to reverse engineer the Xeigu G90 head and base protocol.
 
 #The Story Stuff
@@ -31,7 +33,9 @@ The current code is written entirely in C99, which can theoretically be compiled
 
 **WALKTHROUGH**
 
-'''
+#Transport
+~~~cpp
+
 typedef struct {
     bool (*send)(
         const uint8_t *data,
@@ -52,7 +56,60 @@ typedef struct {
     void *context;
 
 } G90_TRANSPORT;
-'''
 
+~~~
+
+Initialize the transport struct, pass in three function pointers to your transport pipeline. Busy can be used to indicate if the pipeline requires another packet. There is not a buffer run, and it is up to the user to implement their own architecture when it comes to how to handle dropped packets. The suggested architecture is simply sending the last transmission.
+
+**TODO: Give example functions for emulating transport**
+
+#Security
+
+~~~cpp
+typedef struct {
+    void (*enter)(void* context);
+    void (*exit)(void* context);
+
+    void* context; 
+} G90_SECURITY;
+~~~
+
+Then, what follows is the security struct. Create the exposed struct and pass in whatever security you desire. A constant state of the G90 is maintained in memory, and this should be designed to prevent mutation during transition to the transport pipeline or editing the same parameter at the same time.
+
+This can be mutex for multi-threaded applications, or can be longer functions with DMA control, or move between levels. It is once again up to the user.
+
+#Master Init
+
+Then, call the global function.
+
+```cpp 
+bool g90_init(G90 *radio, G90_TRANSPORT* config_transport, G90_SECURITY* config_lockout)
+```
+
+This will merge the three into the G90 struct.
+
+Then, call...
+
+```cpp
+
+while(true && watchdog_good()) //EXAMPLE: DO NOT COPY
+{
+    void g90_process(G90* radio)
+    //remainder of stuff.
+}
+```
+**After that you can manipulate the G90 struct with the provided helper functions, and pass the packets off to your transport pipeline, or use requests to get the state for displays. It is also up to the user to handle the storage of default configurations, and to load those configurations before startup, as this is not a full stack project.**
+
+#Disclaimers and cool stuff
 
 **_NOTE: ALL CODE WRITTEN HERE WAS ENTIRELY PRODUCED BY MYSELF. THERE WAS NO USE OF ANY REVERSE ENGINEERED OR AI GENERATED CODE (beside Claude which did copy my protocol map csv to the cursed X-macro you will see eventually)._**
+
+**_OTHER COOL PROJECTS:_**
+
+Please be aware I cannot verify the validity of either of these projects, as I have not run any of their code or implemented any of their methods, but the following are extremely cool.
+
+[Zeroping: Initial work to RE] (https://github.com/zeroping/xiegu-g90-headprotocol). Note, while this is insanely cool, the last commit was six years ago, and several things have changed (ex. the removal of FFT scale, which is still being experimented with for fear of bricking the admittedly well priced radio units we have).
+
+[OpenHamradioFirmware: Firmware RE Tools] (https://github.com/OpenHamradioFirmware/G90Tools). This was noticed, but not tried due to the one single security feature implemented being flash readout protection, which with enabled makes me too scared to try anything involving this, so use at your own risk.
+
+**That is all, and 73!**
